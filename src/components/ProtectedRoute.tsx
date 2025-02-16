@@ -1,7 +1,9 @@
+import { Cookie } from "lucide-react"
 import { Navigate, Outlet } from "react-router-dom"
+import Cookies from "js-cookie"
 
 const ProtectedRoute = () => {
-  const token = localStorage.getItem("token")
+  const token = Cookies.get("authToken")
 
   // If no token exists, redirect to login page
   if (!token) {

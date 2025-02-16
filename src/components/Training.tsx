@@ -4,20 +4,13 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useNavigate } from "react-router-dom"
 import { Home, Dumbbell, Book, User, LogOut, Menu, X } from "lucide-react"
-import UserLevelCard from "./UserLevelCard"
-import StreakTracker from "./StreakTracker"
-import MasterMoves from "./MasterMoves"
-import WallOfFame from "./WallOfFame"
-import Record from "./Record"
+import TrainingContent from "./TrainingContent"
 
-export default function Dashboard() {
+export default function Training() {
   const navigate = useNavigate()
   const [currentPath, setCurrentPath] = useState(window.location.pathname)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [userProfile, setUserProfile] = useState(null)
-
-  const backendUrl = "http://localhost:5000"
 
   useEffect(() => {
     const handleResize = () => {
@@ -31,28 +24,6 @@ export default function Dashboard() {
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
   }, [])
-
-  useEffect(() => {
-    fetchProfileData()
-  }, [])
-
-  const fetchProfileData = async () => {
-    try {
-      const response = await fetch(`${backendUrl}/auth/profile`, {
-        method: "GET",
-        credentials: "include", // Include cookies in the request
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch profile data")
-      }
-
-      const data = await response.json()
-      setUserProfile(data)
-    } catch (error) {
-      console.error("Error fetching profile data:", error)
-    }
-  }
 
   const handleLogout = () => {
     localStorage.removeItem("token")
@@ -108,27 +79,36 @@ export default function Dashboard() {
   )
 
   return (
-    <div className="flex min-h-screen bg-black from-gray-900 to-gray-800">
-      {/* Mobile Menu Button */}
-      <button onClick={toggleSidebar} className="fixed top-4 left-4 z-50 lg:hidden bg-gray-800 p-2 rounded-lg shadow-md">
-        {sidebarOpen ? <X className="w-6 h-6 text-gray-200" /> : <Menu className="w-6 h-6 text-gray-200" />}
+    <div className="flex min-h-screen bg-black from-gray-50 to-gray-200">
+      <button onClick={toggleSidebar} className="fixed top-4 left-4 z-50 lg:hidden bg-white p-2 rounded-full shadow-md">
+        {sidebarOpen ? <X className="w-6 h-6 text-gray-700" /> : <Menu className="w-6 h-6 text-gray-700" />}
       </button>
 
-      {/* Sidebar for larger screens */}
       <motion.div
-        className="hidden lg:block fixed left-0 top-0 h-full w-64 bg-gray-900/90 backdrop-blur-lg shadow-xl border-r border-gray-700 z-40"
+        initial={{ x: -100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        className="hidden lg:block fixed left-0 top-0 h-full w-64 bg-white/80 backdrop-blur-lg shadow-xl border-r border-gray-200 z-40"
       >
         <SidebarContent />
       </motion.div>
 
-      {/* Mobile Sidebar */}
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div
-            className="fixed inset-0 bg-gray-900/80 z-40 lg:hidden"
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+            className="fixed inset-0 bg-gray-800 bg-opacity-50 z-40 lg:hidden"
+            onClick={toggleSidebar}
           >
             <motion.div
-              className="fixed left-0 top-0 h-full w-64 bg-gray-900 shadow-xl z-50 border-r border-gray-700"
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+              className="fixed left-0 top-0 h-full w-64 bg-white shadow-xl z-50"
+              onClick={(e) => e.stopPropagation()}
             >
               <SidebarContent />
             </motion.div>
@@ -136,33 +116,13 @@ export default function Dashboard() {
         )}
       </AnimatePresence>
 
-      {/* Main Content */}
       <div className="flex-1 transition-all duration-300 lg:ml-64">
-        <motion.div className="p-6 md:p-10 max-w-7xl mx-auto">
-          {/* User Card */}
-          <motion.div className="mb-8 bg-gray-800 shadow-xl rounded-xl p-6">
-            <UserLevelCard userProfile={userProfile} />
-          </motion.div>
-          
-          {/* Middle Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <motion.div className="bg-gray-800 shadow-xl rounded-xl p-6">
-              <StreakTracker  userProfile={userProfile} />
-            </motion.div>
-            <motion.div className="bg-gray-800 shadow-xl rounded-xl p-6">
-              <WallOfFame />
-            </motion.div>
-          </div>
-
-          {/* Bottom Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <motion.div className="bg-gray-800 shadow-xl rounded-xl p-6">
-              <MasterMoves />
-            </motion.div>
-            <motion.div className="bg-gray-800 shadow-xl rounded-xl p-6">
-              <Record />
-            </motion.div>
-          </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-6 md:p-10 max-w-7xl mx-auto"
+        >
+          <TrainingContent />
         </motion.div>
       </div>
     </div>
